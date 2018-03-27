@@ -33,7 +33,7 @@ public class LoginServlet extends HttpServlet implements Routable {
                 try {
                     if (securityService.authenticate(username, password, request)) {
                         try {
-                            new ConnectionManager().UpdateStatus(username, "login");
+                            new ConnectionManager().updateColumn(username, "status","login");
                             response.sendRedirect("/");
                         }catch (SQLException err) {
                             System.out.println(err);

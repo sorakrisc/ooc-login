@@ -52,7 +52,7 @@ public class AddUserServlet extends HttpServlet implements Routable {
 
 
             ConnectionManager cm = new ConnectionManager();
-            cm.AddRow(username, password, fname, lname);
+            cm.addRow(username, password, fname, lname);
             String hashedPassword = new ConnectionManager().selectUserRowByUsername(username).getPassword();
             securityService.addUserCredentials(username , hashedPassword);
             response.sendRedirect("/");

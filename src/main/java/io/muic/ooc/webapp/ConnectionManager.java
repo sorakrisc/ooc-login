@@ -53,7 +53,7 @@ public class ConnectionManager {
         }
     }
 
-    public void DeleteRow(String name) {
+    public void deleteRow(String name) {
         try {
             PreparedStatement st = connection.prepareStatement("DELETE FROM LoginDB.user WHERE username = ?");
             st.setString(1,name);
@@ -63,15 +63,15 @@ public class ConnectionManager {
         }
     }
 
-    public void UpdateStatus(String username, String status ) throws SQLException{
-        String query = "UPDATE LoginDB.user SET status = ? WHERE username = ?";
+    public void updateColumn(String username, String columnToUpdate, String valueToUpdate ) throws SQLException{
+        String query = "UPDATE LoginDB.user SET "+columnToUpdate+" = ? WHERE username = ?";
         PreparedStatement preparedStmt = connection.prepareStatement(query);
-        preparedStmt.setString(1, status);
+        preparedStmt.setString(1, valueToUpdate);
         preparedStmt.setString(2, username);
         preparedStmt.executeUpdate();
         connection.close();
     }
-    public void UpdateRow( String id,String username, String fname, String lname) {
+    public void updateRow( String id,String username, String fname, String lname) {
         try {
             String query = "UPDATE LoginDB.user SET username = ?, firstname = ?, lastname = ? WHERE username = ?";
             PreparedStatement preparedStmt = connection.prepareStatement(query);
@@ -152,7 +152,7 @@ public class ConnectionManager {
         }
         return null;
     }
-    public void AddRow(String username, String password, String fname, String lname) {
+    public void addRow(String username, String password, String fname, String lname) {
         try {
             // create a mysql database connection
 //            Class.forName(jdbcDriverStr);
