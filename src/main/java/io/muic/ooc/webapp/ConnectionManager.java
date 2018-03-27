@@ -152,7 +152,7 @@ public class ConnectionManager {
         }
         return null;
     }
-    public void addRow(String username, String password, String fname, String lname) {
+    public boolean addRow(String username, String password, String fname, String lname) {
         try {
             // create a mysql database connection
 //            Class.forName(jdbcDriverStr);
@@ -167,10 +167,11 @@ public class ConnectionManager {
             preparedStatement.setString(5,"logout");
             preparedStatement.executeUpdate();
             connection.close();
-
+            return true;
         } catch (Exception e) {
             System.err.println("Got an exception!");
             System.err.println(e.getMessage());
+            return false;
         }
 
     }

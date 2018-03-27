@@ -52,10 +52,18 @@ public class AddUserServlet extends HttpServlet implements Routable {
 
 
             ConnectionManager cm = new ConnectionManager();
-            cm.addRow(username, password, fname, lname);
-            String hashedPassword = new ConnectionManager().selectUserRowByUsername(username).getPassword();
-            securityService.addUserCredentials(username , hashedPassword);
-            response.sendRedirect("/");
+            if(cm.addRow(username, password, fname, lname)){
+                String hashedPassword = new ConnectionManager().selectUserRowByUsername(username).getPassword();
+                securityService.addUserCredentials(username , hashedPassword);
+                response.sendRedirect("/");
+            }
+            else{
+                String error = "There is something wrong try changing username.";
+                request.setAttribute("error", error);
+                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
+                rd.include(request, response);
+            }
+
 
         }
         else{
