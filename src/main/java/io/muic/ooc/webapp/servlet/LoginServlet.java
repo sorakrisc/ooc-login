@@ -1,7 +1,9 @@
 package io.muic.ooc.webapp.servlet;
 
+import io.muic.ooc.webapp.ConnectionManager;
 import io.muic.ooc.webapp.service.SecurityService;
 import java.io.IOException;
+import java.sql.SQLException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -28,14 +30,27 @@ public class LoginServlet extends HttpServlet implements Routable {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
             if (!StringUtils.isBlank(username) && !StringUtils.isBlank(password)) {
-                if (securityService.authenticate(username, password, request)) {
-                    System.out.println("YOYO");
-                    response.sendRedirect("/");
-                } else {
-                    String error = "Wrong username or password.";
-                    request.setAttribute("error", error);
-                    RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
-                    rd.include(request, response);
+                try {
+                    if (securityService.authenticate(username, password, request)) {
+                        try {
+                            new ConnectionManager().UpdateStatus(username, "login");
+                            response.sendRedirect("/");
+                        }catch (SQLException err) {
+                            System.out.println(err);
+                            String error = "Login request did not go through try again later.";
+                            request.setAttribute("error", error);
+                            RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
+                            rd.include(request, response);
+                        }
+
+                    } else {
+                        String error = "Wrong username or password.";
+                        request.setAttribute("error", error);
+                        RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
+                        rd.include(request, response);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             } else {
                 String error = "Username or password is missing.";

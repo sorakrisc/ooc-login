@@ -10,6 +10,7 @@ import io.muic.ooc.webapp.Routable;
 import io.muic.ooc.webapp.UserModel;
 import io.muic.ooc.webapp.service.SecurityService;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,18 @@ public class HomeServlet extends HttpServlet implements Routable {
         if(authorized) {
             if(request.getParameter("addUserButton")!=null) {
                 response.sendRedirect("/adduser");
+            }
+            else if(request.getParameter("logout")!=null){
+                String username = (String) request.getSession().getAttribute("username");
+                try {
+                    new ConnectionManager().UpdateStatus(username,"logout");
+                    response.sendRedirect("/login");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if(request.getParameter("editProfile")!=null){
+                response.sendRedirect("/editprofile");
             }
             else {
                 System.out.println("YO");

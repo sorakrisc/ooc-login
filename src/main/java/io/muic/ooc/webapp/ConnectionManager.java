@@ -23,7 +23,7 @@ public class ConnectionManager {
     private static String databaseUsername = "root";
     private static String databasePassword = "MSMDatabase";
     public ConnectionManager() {
-
+        connection = connectToDB();
     }
     public static Connection connectToDB(){
         try {
@@ -35,12 +35,10 @@ public class ConnectionManager {
         return null;
     }
 
-    public static  boolean checkLogin(String username, String password) throws Exception {
+    public boolean checkLogin(String username, String password) throws Exception {
         boolean not_pass = false;
         Password hashSalt = new Password();
         try {
-            //Class.forName(jdbcDriverStr);
-            connection = connectToDB();
             statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT * FROM LoginDB.user");
             while(resultSet.next()){
@@ -57,8 +55,6 @@ public class ConnectionManager {
 
     public void DeleteRow(String name) {
         try {
-//            Class.forName(jdbcDriverStr);
-            connection = connectToDB();
             PreparedStatement st = connection.prepareStatement("DELETE FROM LoginDB.user WHERE username = ?");
             st.setString(1,name);
             st.executeUpdate();
@@ -67,10 +63,16 @@ public class ConnectionManager {
         }
     }
 
+    public void UpdateStatus(String username, String status ) throws SQLException{
+        String query = "UPDATE LoginDB.user SET status = ? WHERE username = ?";
+        PreparedStatement preparedStmt = connection.prepareStatement(query);
+        preparedStmt.setString(1, status);
+        preparedStmt.setString(2, username);
+        preparedStmt.executeUpdate();
+        connection.close();
+    }
     public void UpdateRow( String id,String username, String fname, String lname) {
         try {
-//            Class.forName(jdbcDriverStr);
-            connection = connectToDB();
             String query = "UPDATE LoginDB.user SET username = ?, firstname = ?, lastname = ? WHERE username = ?";
             PreparedStatement preparedStmt = connection.prepareStatement(query);
             preparedStmt.setString(1, username);
@@ -88,7 +90,6 @@ public class ConnectionManager {
     }
 
     public UserModel selectUserRowByUsername(String username){
-        connection = connectToDB();
         String query = "SELECT * FROM LoginDB.user WHERE username = '"+username+"'";
         try {
             // create the java statement
@@ -120,7 +121,6 @@ public class ConnectionManager {
     }
     public Set<UserModel> selectUser(){
         Set<UserModel> ret = new HashSet<>();
-        connection = connectToDB();
         String query = "SELECT * FROM LoginDB.user";
         try {
             // create the java statement
@@ -157,7 +157,6 @@ public class ConnectionManager {
             // create a mysql database connection
 //            Class.forName(jdbcDriverStr);
             Password hashSalt = new Password();
-            connection = connectToDB();
             // note that i'm leaving "date_created" out of this insert statement
             String query = "INSERT INTO LoginDB.user (username, password, firstname, lastname, status) VALUES(?,?,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);

@@ -5,11 +5,15 @@
  */
 package io.muic.ooc.webapp.service;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+
+import io.muic.ooc.webapp.ConnectionManager;
+import io.muic.ooc.webapp.UserModel;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -18,10 +22,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class SecurityService {
     
-    private Map<String, String> userCredentials = new HashMap<String, String>() {{
-        put("admin", "123456");
-        put("muic", "1111");
-    }};
+    private Map<String, String> userCredentials = extractUserCredentialsFromDB();
     
     public boolean isAuthorized(HttpServletRequest request) {
         String username = (String) request.getSession()
@@ -29,10 +30,20 @@ public class SecurityService {
         // do checking
        return (username != null && userCredentials.containsKey(username));
     }
-    
-    public boolean authenticate(String username, String password, HttpServletRequest request) {
-        String passwordInDB = userCredentials.get(username);
-        boolean isMatched = StringUtils.equals(password, passwordInDB);
+    public Map<String, String> extractUserCredentialsFromDB(){
+        Map<String, String> map = new HashMap<>();
+
+        Set<UserModel> userSet =new ConnectionManager().selectUser();
+        for(UserModel u: userSet){
+            map.put(u.getUsername(), u.getPassword());
+        }
+        return map;
+
+    }
+    public boolean authenticate(String username, String password, HttpServletRequest request) throws Exception{
+        String passwordInLocal = userCredentials.get(username);
+        boolean isMatched = new ConnectionManager().checkLogin(username, password);
+//        boolean isMatched = StringUtils.equals(password, passwordInDB);
         if (isMatched) {
             request.getSession().setAttribute("username", username);
             return true;

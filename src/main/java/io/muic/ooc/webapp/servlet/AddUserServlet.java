@@ -30,9 +30,14 @@ public class AddUserServlet extends HttpServlet implements Routable {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("doget adduser");
-        RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/adduser.jsp");
-        rd.include(request, response);
+        boolean authorized = securityService.isAuthorized(request);
+        if (authorized) {
+            RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/adduser.jsp");
+            rd.include(request, response);
+        }
+        else {
+            response.sendRedirect("/login");
+        }
     }
 
     @Override
@@ -44,10 +49,12 @@ public class AddUserServlet extends HttpServlet implements Routable {
             String fname = request.getParameter("firstname");
             String lname = request.getParameter("lastname");
 
-            securityService.addUserCredentials(username , password);
+
 
             ConnectionManager cm = new ConnectionManager();
             cm.AddRow(username, password, fname, lname);
+            String hashedPassword = new ConnectionManager().selectUserRowByUsername(username).getPassword();
+            securityService.addUserCredentials(username , hashedPassword);
             response.sendRedirect("/");
 
         }
