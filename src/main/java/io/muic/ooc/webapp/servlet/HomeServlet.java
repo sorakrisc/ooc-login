@@ -5,10 +5,14 @@
  */
 package io.muic.ooc.webapp.servlet;
 
+import io.muic.ooc.webapp.ConnectionManager;
 import io.muic.ooc.webapp.Routable;
+import io.muic.ooc.webapp.UserModel;
 import io.muic.ooc.webapp.service.SecurityService;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -57,15 +61,22 @@ public class HomeServlet extends HttpServlet implements Routable {
             response.sendRedirect("/login");
         }
     }
+    public Map<String, String> getUsernameStatus(Set<UserModel> setUsers){
+        Map<String, String> ret = new HashMap<>();
+        for (UserModel u : setUsers){
+            ret.put(u.getUsername(), u.getStatus());
+        }
+        return ret;
+    }
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean authorized = securityService.isAuthorized(request);
         if (authorized) {
             // do MVC in here
             String username = (String) request.getSession().getAttribute("username");
-            Set<String> usernamelst = securityService.getUserCredentialsUsername();
+            Map<String, String> usernameStatusMap = getUsernameStatus(new ConnectionManager().selectUser());
             request.setAttribute("username", username);
-            request.setAttribute("usernamelst", usernamelst);
+            request.setAttribute("usernameStatusMap", usernameStatusMap);
             RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/home.jsp");
             rd.include(request, response);
         } else {

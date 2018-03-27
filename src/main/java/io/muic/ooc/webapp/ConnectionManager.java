@@ -3,6 +3,9 @@ package io.muic.ooc.webapp;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ConnectionManager {
 
@@ -77,12 +80,78 @@ public class ConnectionManager {
 
             // execute the java preparedstatement
             preparedStmt.executeUpdate();
+
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    public UserModel selectUserRowByUsername(String username){
+        connection = connectToDB();
+        String query = "SELECT * FROM LoginDB.user WHERE username = '"+username+"'";
+        try {
+            // create the java statement
+            Statement st = connection.createStatement();
+
+            // execute the query, and get a java resultset
+            ResultSet rs = st.executeQuery(query);
+            // iterate through the java resultset
+            while (rs.next()) {
+                int id = rs.getInt("userid");
+                String firstName = rs.getString("firstname");
+                String lastName = rs.getString("lastname");
+                String status  = rs.getString("status");
+                String password = rs.getString("password");
+                UserModel user = new UserModel();
+                user.setFirstname(firstName);
+                user.setLastname(lastName);
+                user.setStatus(status);
+                user.setPassword(password);
+                user.setUsername(username);
+                user.setUserid(id);
+                return user;
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public Set<UserModel> selectUser(){
+        Set<UserModel> ret = new HashSet<>();
+        connection = connectToDB();
+        String query = "SELECT * FROM LoginDB.user";
+        try {
+            // create the java statement
+            Statement st = connection.createStatement();
+
+            // execute the query, and get a java resultset
+            ResultSet rs = st.executeQuery(query);
+            // iterate through the java resultset
+            while (rs.next()) {
+                int id = rs.getInt("userid");
+                String username = rs.getString("username");
+                String firstName = rs.getString("firstname");
+                String lastName = rs.getString("lastname");
+                String status  = rs.getString("status");
+                String password = rs.getString("password");
+                UserModel user = new UserModel();
+                user.setFirstname(firstName);
+                user.setLastname(lastName);
+                user.setStatus(status);
+                user.setPassword(password);
+                user.setUsername(username);
+                user.setUserid(id);
+                ret.add(user);
+            }
+            return ret;
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
     public void AddRow(String username, String password, String fname, String lname) {
         try {
             // create a mysql database connection
