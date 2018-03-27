@@ -20,50 +20,62 @@ public class EditProfileServlet extends HttpServlet implements Routable {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean authorized = securityService.isAuthorized(request);
         if(authorized){
-            boolean updated = false;
+//            boolean updated = false;
             if(request.getParameter("xusername")!=null){
-                updated = updateProfileCriteria(request,response, "newusername", "username");
+                updateProfileCriteria(request,response, "newusername", "username");
             }
             else if(request.getParameter("xfirstname")!=null){
-                updated = updateProfileCriteria(request,response, "newfn", "firstname");
+                updateProfileCriteria(request,response, "newfn", "firstname");
             }
             else if(request.getParameter("xlastname")!=null){
-                updated = updateProfileCriteria(request,response, "newln", "lastname");
+                updateProfileCriteria(request,response, "newln", "lastname");
             }
             else if(request.getParameter("home")!=null){
                 response.sendRedirect("/");
             }
-            if(updated){
-                String error = "selected field is edited.";
-                request.setAttribute("error", error);
-                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
-                rd.include(request, response);
-            }
-            else{
-                String error = "editing field is required.";
-                request.setAttribute("error", error);
-                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
-                rd.include(request, response);
-            }
+//            if(updated){
+//                String error = "selected field is edited.";
+//                request.setAttribute("error", error);
+//                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
+//                rd.include(request, response);
+//            }
+//            else{
+//                String error = "editing field is required.";
+//                request.setAttribute("error", error);
+//                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
+//                rd.include(request, response);
+//            }
         }
         else{
             response.sendRedirect("/login");
         }
     }
-    boolean updateProfileCriteria(HttpServletRequest request, HttpServletResponse response, String textfieldName, String attrToUpdate) throws ServletException, IOException{
+    void updateProfileCriteria(HttpServletRequest request, HttpServletResponse response, String textfieldName, String attrToUpdate) throws ServletException, IOException{
         String username = (String) request.getSession().getAttribute("username");
         String updateValue = request.getParameter(textfieldName);
         if(updateValue.length()>0){
             try {
                 new ConnectionManager().updateColumn(username,attrToUpdate,updateValue);
-                return true;
+                String error = attrToUpdate+" is edited.";
+                UserModel user = new ConnectionManager().selectUserRowByUsername(username);
+                request.setAttribute("error", error);
+                request.setAttribute("fname", user.getFirstname());
+                request.setAttribute("lname", user.getLastname());
+                request.setAttribute("username", username);
+                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
+                rd.include(request, response);
+//                return true;
             } catch (SQLException e) {
                 e.printStackTrace();
-                return false;
+//                return false;
             }
         }
         else {
-            return false;
+//            return false;
+            String error = "editing field is required.";
+            request.setAttribute("error", error);
+            RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
+            rd.include(request, response);
         }
 
     }
