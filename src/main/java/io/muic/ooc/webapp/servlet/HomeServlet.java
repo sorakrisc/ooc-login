@@ -41,7 +41,6 @@ public class HomeServlet extends HttpServlet implements Routable {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("HELLOO");
         boolean authorized = securityService.isAuthorized(request);
         if(authorized) {
             if(request.getParameter("addUserButton")!=null) {
@@ -60,10 +59,10 @@ public class HomeServlet extends HttpServlet implements Routable {
                 response.sendRedirect("/editprofile");
             }
             else {
-                System.out.println("YO");
                 String userToRemove = request.getParameterNames().nextElement();
                 if(!userToRemove.equals(request.getSession().getAttribute("username").toString())) {
                     securityService.removeUserCredentials(userToRemove);
+                    new ConnectionManager().deleteRow(userToRemove);
                 }
 
                 response.sendRedirect("/");

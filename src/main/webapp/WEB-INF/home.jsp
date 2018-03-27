@@ -18,7 +18,7 @@
         <tr>
           <td><c:out value="${usern.key}" /></td>
           <td><p>${usern.value}</p></td>
-          <td><input type="submit" name="${usern}" value="remove" onclick="return confirm('Are you sure you want to continue')"
+          <td><input type="submit" name="${usern.key}" value="remove" onclick="return confirm('Are you sure you want to continue')"
           ></td>
         </tr>
       </c:forEach>

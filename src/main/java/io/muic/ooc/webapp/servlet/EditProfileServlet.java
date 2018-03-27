@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Map;
 
 public class EditProfileServlet extends HttpServlet implements Routable {
     private SecurityService securityService;
@@ -20,7 +19,6 @@ public class EditProfileServlet extends HttpServlet implements Routable {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean authorized = securityService.isAuthorized(request);
         if(authorized){
-//            boolean updated = false;
             if(request.getParameter("xusername")!=null){
                 updateProfileCriteria(request,response, "newusername", "username");
             }
@@ -30,21 +28,9 @@ public class EditProfileServlet extends HttpServlet implements Routable {
             else if(request.getParameter("xlastname")!=null){
                 updateProfileCriteria(request,response, "newln", "lastname");
             }
-            else if(request.getParameter("home")!=null){
+            else if(request.getParameter("home")!=null) {
                 response.sendRedirect("/");
             }
-//            if(updated){
-//                String error = "selected field is edited.";
-//                request.setAttribute("error", error);
-//                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
-//                rd.include(request, response);
-//            }
-//            else{
-//                String error = "editing field is required.";
-//                request.setAttribute("error", error);
-//                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
-//                rd.include(request, response);
-//            }
         }
         else{
             response.sendRedirect("/login");
@@ -64,14 +50,11 @@ public class EditProfileServlet extends HttpServlet implements Routable {
                 request.setAttribute("username", username);
                 RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");
                 rd.include(request, response);
-//                return true;
             } catch (SQLException e) {
                 e.printStackTrace();
-//                return false;
             }
         }
         else {
-//            return false;
             String error = "editing field is required.";
             request.setAttribute("error", error);
             RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/editprofile.jsp");

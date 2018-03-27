@@ -18,7 +18,6 @@ public class LoginServlet extends HttpServlet implements Routable {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("doget login");
         RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
         rd.include(request, response);
     }

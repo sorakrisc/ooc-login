@@ -24,7 +24,6 @@ public class ErrorPageServlet extends HttpServlet implements Routable {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("YOOY");
         boolean authorized = securityService.isAuthorized(request);
         if(authorized){
             response.sendRedirect("/");
