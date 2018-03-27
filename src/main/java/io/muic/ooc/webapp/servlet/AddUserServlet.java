@@ -1,5 +1,7 @@
 package io.muic.ooc.webapp.servlet;
 
+import io.muic.ooc.webapp.ConnectionManager;
+import io.muic.ooc.webapp.Password;
 import io.muic.ooc.webapp.Routable;
 import io.muic.ooc.webapp.service.SecurityService;
 
@@ -9,6 +11,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class AddUserServlet extends HttpServlet implements Routable {
     private SecurityService securityService;
@@ -36,8 +41,15 @@ public class AddUserServlet extends HttpServlet implements Routable {
         if(authorized){
             String username = request.getParameter("username");
             String password = request.getParameter("password");
+            String fname = request.getParameter("firstname");
+            String lname = request.getParameter("lastname");
+
             securityService.addUserCredentials(username , password);
+
+            ConnectionManager cm = new ConnectionManager();
+            cm.AddRow(username, password, fname, lname);
             response.sendRedirect("/");
+
         }
         else{
             response.sendRedirect("/login");

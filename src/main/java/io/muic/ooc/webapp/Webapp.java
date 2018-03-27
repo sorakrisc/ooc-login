@@ -9,6 +9,7 @@ import io.muic.ooc.webapp.servlet.LoginServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.apache.tomcat.util.descriptor.web.ErrorPage;
 
 public class Webapp {
@@ -32,6 +33,8 @@ public class Webapp {
             ErrorPage errorPage = new ErrorPage();
             errorPage.setLocation("/error");
             ctx.addErrorPage(errorPage);
+
+
 
             servletRouter.init(ctx);
             tomcat.start();

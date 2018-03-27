@@ -1,102 +1,58 @@
-package io.muic.ooc.webapp;
-
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.Random;
-
 /**
  * A utility class to hash passwords and check passwords vs hashed values. It uses a combination of hashing and unique
  * salt. The algorithm used is PBKDF2WithHmacSHA1 which, although not the best for hashing password (vs. bcrypt) is
  * still considered robust and <a href="https://security.stackexchange.com/a/6415/12614"> recommended by NIST </a>.
  * The hashed value has 256 bits.
  */
+/**
+ * Author: Ian Gallagher <igallagher@securityinnovation.com>
+ *
+ * This code utilizes jBCrypt, which you need installed to use.
+ * jBCrypt: http://www.mindrot.org/projects/jBCrypt/
+ */
+package io.muic.ooc.webapp;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 public class Password {
-
-    private static final Random RANDOM = new SecureRandom();
-    private static final int ITERATIONS = 10000;
-    private static final int KEY_LENGTH = 256;
+    // Define the BCrypt workload to use when generating password hashes. 10-31 is a valid value.
+    private static int workload = 12;
 
     /**
-     * static utility class
+     * This method can be used to generate a string representing an account password
+     * suitable for storing in a database. It will be an OpenBSD-style crypt(3) formatted
+     * hash string of length=60
+     * The bcrypt workload is specified in the above static variable, a value from 10 to 31.
+     * A workload of 12 is a very reasonable safe default as of 2013.
+     * This automatically handles secure 128-bit salt generation and storage within the hash.
+     * @param password_plaintext The account's plaintext password as provided during account creation,
+     *			     or when changing an account's password.
+     * @return String - a string of length 60 that is the bcrypt hashed password in crypt(3) format.
      */
-    private Password() { }
+    public static String hashPassword(String password_plaintext) {
+        String salt = BCrypt.gensalt(workload);
+        String hashed_password = BCrypt.hashpw(password_plaintext, salt);
 
-    /**
-     * Returns a random salt to be used to hash a password.
-     *
-     * @return a 16 bytes random salt
-     */
-    public static byte[] getNextSalt() {
-        byte[] salt = new byte[16];
-        RANDOM.nextBytes(salt);
-        return salt;
+        return(hashed_password);
     }
 
     /**
-     * Returns a salted and hashed password using the provided hash.<br>
-     * Note - side effect: the password is destroyed (the char[] is filled with zeros)
-     *
-     * @param password the password to be hashed
-     * @param salt     a 16 bytes salt, ideally obtained with the getNextSalt method
-     *
-     * @return the hashed password with a pinch of salt
+     * This method can be used to verify a computed hash from a plaintext (e.g. during a login
+     * request) with that of a stored hash from a database. The password hash from the database
+     * must be passed as the second variable.
+     * @param password_plaintext The account's plaintext password, as provided during a login request
+     * @param stored_hash The account's stored password hash, retrieved from the authorization database
+     * @return boolean - true if the password matches the password of the stored hash, false otherwise
      */
-    public static byte[] hash(char[] password, byte[] salt) {
-        PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
-        Arrays.fill(password, Character.MIN_VALUE);
-        try {
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            return skf.generateSecret(spec).getEncoded();
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new AssertionError("Error while hashing a password: " + e.getMessage(), e);
-        } finally {
-            spec.clearPassword();
-        }
+    public static boolean checkPassword(String password_plaintext, String stored_hash) {
+        boolean password_verified = false;
+
+        if(null == stored_hash || !stored_hash.startsWith("$2a$"))
+            throw new java.lang.IllegalArgumentException("Invalid hash provided for comparison");
+
+        password_verified = BCrypt.checkpw(password_plaintext, stored_hash);
+
+        return(password_verified);
     }
 
-    /**
-     * Returns true if the given password and salt match the hashed value, false otherwise.<br>
-     * Note - side effect: the password is destroyed (the char[] is filled with zeros)
-     *
-     * @param password     the password to check
-     * @param salt         the salt used to hash the password
-     * @param expectedHash the expected hashed value of the password
-     *
-     * @return true if the given password and salt match the hashed value, false otherwise
-     */
-    public static boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {
-        byte[] pwdHash = hash(password, salt);
-        Arrays.fill(password, Character.MIN_VALUE);
-        if (pwdHash.length != expectedHash.length) return false;
-        for (int i = 0; i < pwdHash.length; i++) {
-            if (pwdHash[i] != expectedHash[i]) return false;
-        }
-        return true;
-    }
-
-    /**
-     * Generates a random password of a given length, using letters and digits.
-     *
-     * @param length the length of the password
-     *
-     * @return a random password
-     */
-    public static String generateRandomPassword(int length) {
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int c = RANDOM.nextInt(62);
-            if (c <= 9) {
-                sb.append(String.valueOf(c));
-            } else if (c < 36) {
-                sb.append((char) ('a' + c - 10));
-            } else {
-                sb.append((char) ('A' + c - 36));
-            }
-        }
-        return sb.toString();
-    }
 }

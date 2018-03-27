@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 public class SecurityService {
     
     private Map<String, String> userCredentials = new HashMap<String, String>() {{
-        put("admin", "123456");
+//        put("admin", "123456");
         put("muic", "1111");
     }};
     

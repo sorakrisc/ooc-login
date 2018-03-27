@@ -27,22 +27,22 @@ public class LoginServlet extends HttpServlet implements Routable {
         // extract username and password from request
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        if (!StringUtils.isBlank(username) && !StringUtils.isBlank(password)) {
-            if (securityService.authenticate(username, password, request)) {
-                System.out.println("YOYO");
-                response.sendRedirect("/");
+            if (!StringUtils.isBlank(username) && !StringUtils.isBlank(password)) {
+                if (securityService.authenticate(username, password, request)) {
+                    System.out.println("YOYO");
+                    response.sendRedirect("/");
+                } else {
+                    String error = "Wrong username or password.";
+                    request.setAttribute("error", error);
+                    RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
+                    rd.include(request, response);
+                }
             } else {
-                String error = "Wrong username or password.";
+                String error = "Username or password is missing.";
                 request.setAttribute("error", error);
                 RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
                 rd.include(request, response);
             }
-        } else {
-            String error = "Username or password is missing.";
-            request.setAttribute("error", error);
-            RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
-            rd.include(request, response);
-        }
 
         // check username and password against database
         // if valid then set username attribute to session via securityService
