@@ -60,7 +60,7 @@ public class AddUserServlet extends HttpServlet implements Routable {
             else{
                 String error = "There is something wrong try changing username.";
                 request.setAttribute("error", error);
-                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/login.jsp");
+                RequestDispatcher rd = request.getRequestDispatcher("WEB-INF/adduser.jsp");
                 rd.include(request, response);
             }
 

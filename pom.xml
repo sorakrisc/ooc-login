@@ -67,7 +67,9 @@
 
     </dependencies>
     <build>
+        <!--s-->
         <plugins>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
